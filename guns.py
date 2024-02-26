@@ -104,7 +104,7 @@ class Gun(pygame.sprite.Sprite):
 class ShotgunEnemy(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
-        self.image = pygame.transform.scale(assets["shotgun"], (15, 48)).convert_alpha()
+        self.image = pygame.transform.scale(assets["shotgun"], (10, 48)).convert_alpha()
         self.images = {}  # Dictionary to store pre-rendered rotated images
         self.pos = pos
         self.rect = self.image.get_rect(topleft=pos)
@@ -200,7 +200,7 @@ class Shotgun(pygame.sprite.Sprite):
         super().__init__()
         self.original_image = pygame.transform.scale(
             pygame.image.load("images/shotgun.png").convert_alpha(),
-            (20, 53),  # (10, 48),
+            (10, 48),  # (10, 48),
         )
         self.images = {}  # Dictionary to store pre-rendered rotated images
         self.pos = pos

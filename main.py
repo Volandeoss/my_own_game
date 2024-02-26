@@ -76,6 +76,7 @@ def game_over(is_game):
     pygame.mouse.set_visible(False)
     cursor_img_rect = custom_cursor.get_rect()
     custom_cursor.set_colorkey((104, 75, 45))
+    gaz = assets["shooter/game"].copy()
     # screen.blit(custom_cursor, cursor_img_rect)
 
     font = pygame.font.SysFont(None, 50)
@@ -85,7 +86,9 @@ def game_over(is_game):
     restart_text_rect = restart_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 50))
 
     while True:
+        gaz.update()
         screen.fill((0, 0, 0))  # Fill the screen with black
+        screen.blit(gaz.img(), (50, 50))
         screen.blit(game_over_text, game_over_text_rect)  # Display "Game Over" message
         screen.blit(restart_text, restart_text_rect)  # Display "Restart" button
         cursor_img_rect = custom_cursor.get_rect(center=pygame.mouse.get_pos())
@@ -110,19 +113,24 @@ def menu():
     # pygame.mouse.set_visible(False)
     # cursor_img_rect = custom_cursor.get_rect()
     # custom_cursor.set_colorkey((104, 75, 45))
-
+    revo = assets["Revo"].copy()
     while True:
+
+        revo.update()
+        # image = revo.img()
+
         screen.blit(pygame.image.load("images/menu.png"), (0, 0))
+        screen.blit(revo.img(), (50, 50))
         play_button_rect = pygame.Rect(
             250, 300, 100, 50
         )  # Define the "Play" button rect
         pygame.draw.rect(
-            screen, (255, 0, 0), play_button_rect, 2
+            screen, (255, 255, 255), play_button_rect, 2
         )  # Draw button outline
 
         # Display text on the button
         font = pygame.font.SysFont(None, 30)
-        text = font.render("Play", True, (255, 0, 0))
+        text = font.render("Play", True, (255, 255, 255))
         text_rect = text.get_rect(center=play_button_rect.center)
         screen.blit(text, text_rect)
 
@@ -180,11 +188,14 @@ def spawn_coins(
         coins.add(Coin((x, y), coins))
 
 
-def spawn_entities(is_game, player, amount_entities):
+def spawn_entities(is_game, player, amount_entities, phase):
     randik = random.random()
+    probability = 0
+    if phase == 2:
+        probability = 0.2
 
     if (
-        randik < 0.5 and is_game and amount_entities < 70
+        randik < 0.5 + probability and is_game and amount_entities < 70
     ):  # Adjust this probability to control the spawn rate
         random_speed = random.uniform(2, 4)
         randx = random.randint(-1232, 1174)
@@ -215,7 +226,6 @@ def spawn_entities(is_game, player, amount_entities):
                     randy,
                     random_speed,
                 ),
-                # Shooter(randx, randy, random_speed, shooters),
             )
             amount_entities += 1
 
@@ -328,7 +338,7 @@ def game():
             amount_entities += 30
             amount_coins = 0
 
-        spawn_entities(is_game, player, amount_entities)
+        spawn_entities(is_game, player, amount_entities, phase)
 
         current_time = time.time()
         if is_shooting and current_time - last_shot_time > gun.reload:

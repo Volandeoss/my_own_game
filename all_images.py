@@ -27,5 +27,7 @@ assets = {
     "coin/gold": Animation(load_images("Coin", 1, 6, (10, 10)), 4),
     "coin/silver": Animation(load_images("Coin_silver", 1, 6, (10, 10)), 4),
     "coin/bronze": Animation(load_images("Coin_bronze", 1, 6, (10, 10)), 4),
+    "Revo": Animation(load_images("Revo", 1, 19, (500, 500)), 10),
+    "shooter/game": Animation(load_images("gazlighter_idle", 1, 6, (400, 552)), 6),
 }
 # print(len(assets["coin/bronze"].images))
