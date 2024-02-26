@@ -5,22 +5,24 @@ from all_images import assets
 class Block(pygame.sprite.Sprite):
     def __init__(self, pos, type, group):
         super().__init__(group)
-        if type == 0:
-            self.image = pygame.transform.scale(
-                pygame.image.load("images/wall_up.png").convert_alpha(), (100, 25)
-            )
-        elif type == 1:
-            self.image = pygame.transform.scale(
-                pygame.image.load("images/wall_down.png").convert_alpha(), (100, 25)
-            )
-        elif type == 2:
-            self.image = pygame.transform.scale(
-                pygame.image.load("images/wall_left.png").convert_alpha(), (25, 100)
-            )
-        elif type == 3:
-            self.image = pygame.transform.scale(
-                pygame.image.load("images/wall_right.png").convert_alpha(), (25, 100)
-            )
+        match type:
+            case 0:
+                self.image = pygame.transform.scale(
+                    pygame.image.load("images/wall_up.png").convert_alpha(), (100, 25)
+                )
+            case 1:
+                self.image = pygame.transform.scale(
+                    pygame.image.load("images/wall_down.png").convert_alpha(), (100, 25)
+                )
+            case 2:
+                self.image = pygame.transform.scale(
+                    pygame.image.load("images/wall_left.png").convert_alpha(), (25, 100)
+                )
+            case 3:
+                self.image = pygame.transform.scale(
+                    pygame.image.load("images/wall_right.png").convert_alpha(),
+                    (25, 100),
+                )
         self.rect = self.image.get_rect(topleft=pos)
 
 
