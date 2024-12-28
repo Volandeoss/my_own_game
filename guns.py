@@ -58,7 +58,7 @@ class Gun(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
         self.original_image = pygame.transform.scale(
-            pygame.image.load("images/gun.png").convert_alpha(), (20, 53)  # (10, 48),
+            pygame.image.load("images/gun.png").convert(), (20, 53)  # (10, 48),
         )
         self.images = {}  # Dictionary to store pre-rendered rotated images
         self.pos = pos
@@ -108,7 +108,7 @@ class ShotgunEnemy(pygame.sprite.Sprite):
         self.images = {}  # Dictionary to store pre-rendered rotated images
         self.pos = pos
         self.rect = self.image.get_rect(topleft=pos)
-        self.image.set_colorkey((78, 255, 186))
+        # self.image.set_colorkey((78, 255, 186))
         self.angle = 0
         self.reload = 0.8
 
@@ -205,7 +205,7 @@ class Shotgun(pygame.sprite.Sprite):
         self.images = {}  # Dictionary to store pre-rendered rotated images
         self.pos = pos
         self.rect = self.original_image.get_rect(topleft=pos)
-        self.original_image.set_colorkey((78, 255, 186))
+        # self.original_image.set_colorkey((78, 255, 186))
         self.angle = 0
         self.reload = 0.5
 
@@ -266,7 +266,7 @@ class Shotgun(pygame.sprite.Sprite):
 class RifleEnemy(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
-        self.image = pygame.transform.scale(assets["rifle"], (15, 48)).convert_alpha()
+        self.image = pygame.transform.scale(assets["rifle"], (15, 48)).convert()
         self.images = {}  # Dictionary to store pre-rendered rotated images
         self.pos = pos
         self.rect = self.image.get_rect(topleft=pos)
@@ -326,7 +326,7 @@ class Pistol(pygame.sprite.Sprite):
         self.images = {}  # Dictionary to store pre-rendered rotated images
         self.pos = pos
         self.rect = self.original_image.get_rect(topleft=pos)
-        self.original_image.set_colorkey((78, 255, 186))
+        # self.original_image.set_colorkey((78, 255, 186))
         self.angle = 0
         self.reload = 0.3
 

@@ -8,6 +8,7 @@ from guns import *
 from scipy.ndimage import gaussian_filter
 import numpy as np
 from tilemap import Floor, Spikes
+import threading
 
 
 pygame.init()
@@ -32,7 +33,7 @@ def display_coins(amount_coins):
     text_rect = text.get_rect()
     text_rect.topright = (WIDTH - 200, 10)
     screen.blit(
-        pygame.transform.scale(pygame.image.load("images\Coin2.png"), (20, 20)),
+        pygame.transform.scale(pygame.image.load("images/Coin2.png"), (20, 20)),
         text_rect,
     )
     screen.blit(
@@ -72,6 +73,8 @@ def display_health(player):
 
 
 def game_over(is_game):
+
+
     custom_cursor = pygame.image.load("images/cursor.png").convert_alpha()
     pygame.mouse.set_visible(False)
     cursor_img_rect = custom_cursor.get_rect()
@@ -188,6 +191,45 @@ def spawn_coins(
         coins.add(Coin((x, y), coins))
 
 
+def spawn_entities_threaded(is_game, player, amount_entities, phase):
+    def spawn_entities_worker(is_game, player, amount_entities, phase):
+        randik = random.random()
+        probability = 0
+        if phase == 2:
+            probability = 0.2
+
+        if (
+            randik < 0.5 + probability and is_game and amount_entities < 70
+        ):  # Adjust this probability to control the spawn rate
+            random_speed = random.uniform(2, 4)
+            randx = random.randint(-1232, 1174)
+            randy = random.randint(-700, 656)
+            while (
+                randx > player.rect.x - 300
+                and randx < player.rect.x + 300
+                or randy > player.rect.y - 300
+                and randy < player.rect.y + 300
+            ):
+                randx = random.randint(-1232, 1174)
+                randy = random.randint(-700, 656)
+            if randik < 0.01:
+                print(f"{randx, randy, random_speed}")
+                shooters.add(
+                    Shooter(randx, randy, random_speed, shooters)
+                )
+                amount_entities += 1
+            elif randik < 0.05:
+                entities.add(
+                    Entity(randx, randy, random_speed)
+                )
+                amount_entities += 1
+
+
+
+    # Create a thread to run the spawning worker function
+    spawn_thread = threading.Thread(target=spawn_entities_worker, args=(is_game, player, amount_entities, phase))
+    spawn_thread.start()
+
 def spawn_entities(is_game, player, amount_entities, phase):
     randik = random.random()
     probability = 0
@@ -210,16 +252,11 @@ def spawn_entities(is_game, player, amount_entities, phase):
             randy = random.randint(-700, 656)
         if randik < 0.01:
             shooters.add(
-                # Entity(
-                #     randx,
-                #     randy,
-                #     random_speed,
-                # ),
                 Shooter(randx, randy, random_speed, shooters),
             )
             amount_entities += 1
         elif randik < 0.05:
-
+            
             entities.add(
                 Entity(
                     randx,
@@ -338,32 +375,17 @@ def game():
             amount_entities += 30
             amount_coins = 0
 
-        spawn_entities(is_game, player, amount_entities, phase)
+        # spawn_entities(is_game, player, amount_entities, phase)
+        spawn_entities_threaded(is_game, player, amount_entities, phase)
 
+        
         current_time = time.time()
         if is_shooting and current_time - last_shot_time > gun.reload:
             gun.shoot(cursor_position, bullets)
             last_shot_time = current_time
 
-        for shooter in shooters:
-            shooter.update(player, entitybullets)
-            for bullet in bullets:
-                if shooter.col.colliderect(bullet.rect):
-                    spawn_coins(shooter.col.x, shooter.col.y)
-                    bullets.remove(bullet)
-                    shooter.health -= 1
-                    if shooter.health <= 0:
-                        amount_entities -= 1
-                        kill_count += 1
-                        if (kill_count % 30) == 0:
-                            healt_pots.add(
-                                HealthPotion(
-                                    (shooter.col.x, shooter.col.y),
-                                    (50, 50),
-                                )
-                            )
 
-                        shooters.remove(shooter)
+       
 
         for bullet in entitybullets:
 
@@ -396,6 +418,15 @@ def game():
 
         for spike in spikes:
             spike.update(player)
+
+        for shooter in shooters:
+            shooter.update(player, entitybullets)
+            for bullet in bullets:
+                if shooter.col.colliderect(bullet.rect):
+                    kill_count += 1
+                    spawn_coins(shooter.col.x, shooter.col.y)
+                    bullets.remove(bullet)
+                    shooter.die(kill_count, healt_pots)
 
         for entity in entities:
             entity.update(player)

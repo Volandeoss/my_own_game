@@ -100,26 +100,40 @@ class Shooter(pygame.sprite.Sprite):
         angle = math.atan2(
             player.rect.y - self.rect.centery, player.rect.x - self.rect.centerx
         )
-        self.dx = self.speed * math.cos(angle)
-        self.dy = self.speed * math.sin(angle)
+        if hasattr(self, 'speed') and self.speed is not None:
+            self.dx = self.speed * math.cos(angle)
+            self.dy = self.speed * math.sin(angle)
 
-        if self.get_dist(player) < 200:
-            self.set_action("idle")
-            current_time = time.time()
-            if current_time - self.last_shot_time > self.gun.reload:
-                self.gun.shoot(self.col, player, bullets)
-                self.last_shot_time = current_time
-            self.dx = 0
-            self.dy = 0
+            if self.get_dist(player) < 200:
+                self.set_action("idle")
+                current_time = time.time()
+                if current_time - self.last_shot_time > self.gun.reload:
+                    self.gun.shoot(self.col, player, bullets)
+                    self.last_shot_time = current_time
+                self.dx = 0
+                self.dy = 0
 
-        else:
-            self.set_action("walk")
+            else:
+                self.set_action("walk")
+
+    def die(self, kill_count, health_pots):
+        self.gun.kill()
+        self.kill()
+        if (kill_count % 30) == 0:
+            health_pots.add(
+                HealthPotion(
+                    (self.col.x, self.col.y),
+                    (50, 50),
+                )
+            )
+
+
 
     def update(self, player, bullets):
-        if self.health <= 0:
-            del self.gun
-            self.kill()
-        self.gun.update((player.rect.x, player.rect.y), (self.rect.x, self.rect.y))
+        if hasattr(self, 'gun') and self.gun is not None:  # Check if gun exists
+            self.gun.update((player.rect.x, player.rect.y), (self.rect.x, self.rect.y))
+
+        # self.gun.update((player.rect.x, player.rect.y), (self.rect.x, self.rect.y))
         self.move_towards_center(player, bullets)
         self.rect.x += self.dx
         self.rect.y += self.dy
