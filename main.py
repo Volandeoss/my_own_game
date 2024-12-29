@@ -5,6 +5,7 @@ import random
 from entities import *
 from camera import CameraGroup
 from guns import *
+from spawning import *
 from scipy.ndimage import gaussian_filter
 import numpy as np
 from tilemap import Floor, Spikes
@@ -73,8 +74,6 @@ def display_health(player):
 
 
 def game_over(is_game):
-
-
     custom_cursor = pygame.image.load("images/cursor.png").convert_alpha()
     pygame.mouse.set_visible(False)
     cursor_img_rect = custom_cursor.get_rect()
@@ -152,27 +151,6 @@ def menu():
         # screen.blit(custom_cursor, cursor_img_rect)
 
 
-TRANSPARENT_BLACK = (0, 0, 0, 128)  # Чорний колір з прозорістю 50%
-
-
-def blur_surface(surface, radius):
-    arr = pygame.surfarray.pixels3d(surface)
-    blurred_arr = np.empty_like(arr)
-    for i in range(3):
-        blurred_arr[:, :, i] = gaussian_filter(arr[:, :, i], sigma=radius)
-    return pygame.surfarray.make_surface(blurred_arr)
-
-
-# Set up blur radius
-blur_radius = 5
-
-
-def darken_screen():
-    darken_surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-    darken_surface.fill(TRANSPARENT_BLACK)
-    screen.blit(darken_surface, (0, 0))
-
-
 entities = pygame.sprite.Group()
 shooters = pygame.sprite.Group()
 healt_pots = pygame.sprite.Group()
@@ -191,44 +169,44 @@ def spawn_coins(
         coins.add(Coin((x, y), coins))
 
 
-def spawn_entities_threaded(is_game, player, amount_entities, phase):
-    def spawn_entities_worker(is_game, player, amount_entities, phase):
-        randik = random.random()
-        probability = 0
-        if phase == 2:
-            probability = 0.2
+# def spawn_entities_threaded(is_game, player, amount_entities, phase):
+#     def spawn_entities_worker(is_game, player, amount_entities, phase):
+#         randik = random.random()
+#         probability = 0
+#         if phase == 2:
+#             probability = 0.2
 
-        if (
-            randik < 0.5 + probability and is_game and amount_entities < 70
-        ):  # Adjust this probability to control the spawn rate
-            random_speed = random.uniform(2, 4)
-            randx = random.randint(-1232, 1174)
-            randy = random.randint(-700, 656)
-            while (
-                randx > player.rect.x - 300
-                and randx < player.rect.x + 300
-                or randy > player.rect.y - 300
-                and randy < player.rect.y + 300
-            ):
-                randx = random.randint(-1232, 1174)
-                randy = random.randint(-700, 656)
-            if randik < 0.01:
-                print(f"{randx, randy, random_speed}")
-                shooters.add(
-                    Shooter(randx, randy, random_speed, shooters)
-                )
-                amount_entities += 1
-            elif randik < 0.05:
-                entities.add(
-                    Entity(randx, randy, random_speed)
-                )
-                amount_entities += 1
+#         if (
+#             randik < 0.5 + probability and is_game and amount_entities < 70
+#         ):  # Adjust this probability to control the spawn rate
+#             random_speed = random.uniform(2, 4)
+#             randx = random.randint(-1232, 1174)
+#             randy = random.randint(-700, 656)
+#             while (
+#                 randx > player.rect.x - 300
+#                 and randx < player.rect.x + 300
+#                 or randy > player.rect.y - 300
+#                 and randy < player.rect.y + 300
+#             ):
+#                 randx = random.randint(-1232, 1174)
+#                 randy = random.randint(-700, 656)
+#             if randik < 0.01:
+#                 shooters.add(
+#                     Shooter(randx, randy, random_speed, shooters)
+#                 )
+#                 amount_entities += 1
+#             elif randik < 0.05:
+#                 pass
+#                 entities.add(
+#                     Entity(randx, randy, random_speed)
+#                 )
+#                 amount_entities += 1
 
 
 
-    # Create a thread to run the spawning worker function
-    spawn_thread = threading.Thread(target=spawn_entities_worker, args=(is_game, player, amount_entities, phase))
-    spawn_thread.start()
+#     # Create a thread to run the spawning worker function
+#     spawn_thread = threading.Thread(target=spawn_entities_worker, args=(is_game, player, amount_entities, phase))
+#     spawn_thread.start()
 
 def spawn_entities(is_game, player, amount_entities, phase):
     randik = random.random()
@@ -294,17 +272,12 @@ def game():
     player = PhysicsEntity(screen, (WIDTH // 2, HEIGHT // 2), (40, 44), camera_group)
 
     gun = Pistol((player.col.x, player.col.y))
-    # gun = Shotgun((player.rect.x, player.rect.y))
 
     for i in range(25):
-        # down
         blocks.add(Block((1117 - (i * 100), 700), 1, camera_group))
-        # up
         blocks.add(Block((-1235 + (i * 100), -725), 0, camera_group))
     for i in range(14):
-        # left
         blocks.add(Block((-1259, -700 + (i * 100)), 2, camera_group))
-        # right
         blocks.add(Block((1215, -700 + (i * 100)), 3, camera_group))
 
     is_game = True
@@ -339,12 +312,12 @@ def game():
 
         current_time = pygame.time.get_ticks()
 
-        # pygame.draw.aaline(
-        #     screen,
-        #     (0, 0, 0),
-        #     cursor_position,
-        #     (player.col.centerx, player.col.centery),
-        # )
+        pygame.draw.aaline(
+            screen,
+            (0, 0, 0),
+            cursor_position,
+            (player.col.centerx, player.col.centery),
+        )
 
         cursor_img_rect.center = pygame.mouse.get_pos()  # update position
 
@@ -376,8 +349,11 @@ def game():
             amount_coins = 0
 
         # spawn_entities(is_game, player, amount_entities, phase)
-        spawn_entities_threaded(is_game, player, amount_entities, phase)
-
+        spawn_entities_threaded(is_game, player, amount_entities, phase, shooters, entities)
+        # spawn_single(player)
+        # shooters.add(
+        #     Shooter(-1200, -700, 0, shooters)
+        # )
         
         current_time = time.time()
         if is_shooting and current_time - last_shot_time > gun.reload:
@@ -420,7 +396,7 @@ def game():
             spike.update(player)
 
         for shooter in shooters:
-            shooter.update(player, entitybullets)
+            shooter.update(player, entitybullets, screen)
             for bullet in bullets:
                 if shooter.col.colliderect(bullet.rect):
                     kill_count += 1
@@ -465,11 +441,7 @@ def game():
         elif is_game:
             screen.blit(gun.image, gun.rect.topleft)
         display_health(player)
-        # display_player_pos(player)
-        # darken_screen()
-        # blur_surface(screen, blur_radius)
-        # blurred_image = blur_surface(image, blur_radius)
-        # screen.blit(blurred_image, (0, 0))
+        display_player_pos(player)
         pygame.display.flip()
 
         clock.tick(60)

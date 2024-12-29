@@ -108,7 +108,6 @@ class ShotgunEnemy(pygame.sprite.Sprite):
         self.images = {}  # Dictionary to store pre-rendered rotated images
         self.pos = pos
         self.rect = self.image.get_rect(topleft=pos)
-        # self.image.set_colorkey((78, 255, 186))
         self.angle = 0
         self.reload = 0.8
 
@@ -205,7 +204,6 @@ class Shotgun(pygame.sprite.Sprite):
         self.images = {}  # Dictionary to store pre-rendered rotated images
         self.pos = pos
         self.rect = self.original_image.get_rect(topleft=pos)
-        # self.original_image.set_colorkey((78, 255, 186))
         self.angle = 0
         self.reload = 0.5
 
@@ -218,7 +216,7 @@ class Shotgun(pygame.sprite.Sprite):
                 ),
                 (
                     cursor_pos[0] + 30,
-                    cursor_pos[1] + 40,
+                    cursor_pos[1],
                 ),
             ),
             Bullet(
@@ -326,7 +324,6 @@ class Pistol(pygame.sprite.Sprite):
         self.images = {}  # Dictionary to store pre-rendered rotated images
         self.pos = pos
         self.rect = self.original_image.get_rect(topleft=pos)
-        # self.original_image.set_colorkey((78, 255, 186))
         self.angle = 0
         self.reload = 0.3
 
@@ -335,11 +332,11 @@ class Pistol(pygame.sprite.Sprite):
             Bullet(
                 (
                     self.rect.x + 10,
-                    self.rect.y + 18,
+                    self.rect.y + 10,
                 ),
                 (
                     cursor_pos[0] + 30,
-                    cursor_pos[1] + 40,
+                    cursor_pos[1],
                 ),
             ),
         )

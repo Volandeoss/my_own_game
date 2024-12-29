@@ -62,8 +62,8 @@ class Entity(pygame.sprite.Sprite):
 
 
 class Shooter(pygame.sprite.Sprite):
-    def __init__(self, x, y, speed, group):
-        super().__init__(group)
+    def __init__(self, x, y, speed):
+        super().__init__()
         self.dx = x
         self.dy = y
         self.size = (40, 55)
@@ -79,7 +79,7 @@ class Shooter(pygame.sprite.Sprite):
         else:
             self.gun = RifleEnemy(
                 (self.col.topleft[0] + 20, self.col.topleft[1] + 20)
-            )  # ShotgunEnemy((self.col.topleft[0] + 20, self.col.topleft[1] + 20))
+            )  
         self.health = 1
         self.speed = speed
 
@@ -90,7 +90,7 @@ class Shooter(pygame.sprite.Sprite):
         if action != self.action:
             self.action = action
             self.animation = assets[f"shooter/{self.action}"].copy()
-
+    
     def get_dist(self, player):
         return math.sqrt(
             (player.rect.x - self.rect.x) ** 2 + (player.rect.y - self.rect.y) ** 2
@@ -129,7 +129,7 @@ class Shooter(pygame.sprite.Sprite):
 
 
 
-    def update(self, player, bullets):
+    def update(self, player, bullets, display_surface):
         if hasattr(self, 'gun') and self.gun is not None:  # Check if gun exists
             self.gun.update((player.rect.x, player.rect.y), (self.rect.x, self.rect.y))
 
@@ -143,7 +143,7 @@ class Shooter(pygame.sprite.Sprite):
             self.image = pygame.transform.flip(self.animation.img(), True, False)
         else:
             self.image = self.animation.img()
-        # self.display_surface.blit(self.gun.image, self.gun.rect.topleft)
+
 
 
 class PhysicsEntity(pygame.sprite.Sprite):
@@ -152,8 +152,8 @@ class PhysicsEntity(pygame.sprite.Sprite):
         self.game = game
         self.pos = list(pos)
         self.size = size
-        self.health = 10
-        self.max_health = 10
+        self.health = 1000
+        self.max_health = 1000
         self.old_x = 0
         self.old_y = 0
         self.action = ""
@@ -164,9 +164,8 @@ class PhysicsEntity(pygame.sprite.Sprite):
         self.col = pygame.Rect(pos[0] - 15, pos[1] - 22, size[0] - 10, size[1])
         self.direction = pygame.math.Vector2()
         self.speed = 3
-        self.has_colided = False
 
-        # self.movement = [False, False, False, False]
+
 
     def is_colliding(self, block):
         if self.rect.colliderect(block.rect):
@@ -178,18 +177,21 @@ class PhysicsEntity(pygame.sprite.Sprite):
             # Determine side of collision
             min_overlap = min(left_overlap, right_overlap, top_overlap, bottom_overlap)
             if min_overlap == left_overlap:
+                self.direction.x = 0
                 self.rect.x = self.rect.x - self.speed
                 print("Player collided with the left side of the wall!")
             elif min_overlap == right_overlap:
+                self.direction.x = 0
                 self.rect.x = self.rect.x + self.speed
                 print("Player collided with the rightside of the wall!")
             elif min_overlap == top_overlap:
+                self.direction.y = 0
                 self.rect.y = self.rect.y - self.speed
                 print("Player collided with the top side of the wall!")
             elif min_overlap == bottom_overlap:
+                self.direction.y = 0
                 self.rect.y = self.rect.y + self.speed
                 print("Player collided with the bottom side of the wall!")
-                # print("coliiding")
                 return True
 
         return False
@@ -200,25 +202,17 @@ class PhysicsEntity(pygame.sprite.Sprite):
             self.set_action("walk")
         else:
             self.set_action("idle")
-
         if keys[pygame.K_w]:
-            # self.set_action("walk")
-
             self.direction.y = -1
         elif keys[pygame.K_s]:
-            # self.set_action("walk")
+            
             self.direction.y = 1
         else:
-
             self.direction.y = 0
 
         if keys[pygame.K_d]:
-            # self.set_action("walk")
-
             self.direction.x = 1
         elif keys[pygame.K_a]:
-            # self.set_action("walk")
-
             self.direction.x = -1
         else:
             self.direction.x = 0
@@ -326,8 +320,6 @@ class Coin(pygame.sprite.Sprite):
         self.animation.update()
         self.image = self.animation.img()
         if self.rect.colliderect(player.col):
-            # coins += 1
-            # print(coins)
             self.kill()
             return 1
         return 0

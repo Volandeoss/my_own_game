@@ -23,11 +23,11 @@ assets = {
     "shotgun": pygame.image.load(BASE + "shotgun.png"),
     "rifle": pygame.image.load(BASE + "gun.png"),
     "pistol": pygame.image.load(BASE + "pistol.png"),
-    "spikes": Animation(load_images("spike_", 0, 4, (25, 26)), 20),
+    "spikes": Animation(load_images("spike_", 0, 4, (25, 26)), 30),
     "coin/gold": Animation(load_images("Coin", 1, 6, (10, 10)), 4),
     "coin/silver": Animation(load_images("Coin_silver", 1, 6, (10, 10)), 4),
     "coin/bronze": Animation(load_images("Coin_bronze", 1, 6, (10, 10)), 4),
     "Revo": Animation(load_images("Revo", 1, 19, (500, 500)), 10),
-    "shooter/game": Animation(load_images("gazlighter_idle", 1, 6, (400, 552)), 6),
+    "shooter/game": Animation(load_images("gazlighter_idle", 1, 6, (400, 552)), 2),
 }
-# print(len(assets["coin/bronze"].images))
+

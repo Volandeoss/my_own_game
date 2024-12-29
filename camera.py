@@ -25,22 +25,22 @@ class CameraGroup(pygame.sprite.Group):
         self.offset.x = target.rect.centerx - self.half_w
         self.offset.y = target.rect.centery - self.half_h
 
+
     def custom_draw(self, player):
         self.center_target_camera(player)
 
         # ground
         ground_offset = self.ground_rect.topleft - self.offset
         self.display_surface.blit(self.ground_surf, ground_offset)
+        
 
-        # # Create a new surface to blit the ground and sprites onto
-        # combined_surface = pygame.Surface(self.ground_surf.get_size(), pygame.SRCALPHA)
-        # combined_surface.blit(self.ground_surf, (0, 0))
-
+        
         # active elements
 
         for sprite in self.sprites():  # player and blocks
             offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image, offset_pos)
+        
 
         for sprite in self.spikes:
             offset_pos = sprite.rect.topleft - self.offset
