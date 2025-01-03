@@ -6,17 +6,16 @@ from entities import *
 from camera import CameraGroup
 from guns import *
 from spawning import *
-from scipy.ndimage import gaussian_filter
-import numpy as np
 from tilemap import Floor, Spikes
-import threading
+
 
 
 pygame.init()
 
 WIDTH = 600  # 1366
-HEIGHT = 600  # 750
-# Set up the drawing window
+HEIGHT = 600 # 750
+
+
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 
@@ -72,6 +71,13 @@ def display_health(player):
     text_rect.topleft = (10, 40)
     screen.blit(text, text_rect)
 
+def spawn_coins(
+    x,
+    y,
+):
+    if random.random() < 0.5:
+        coins.add(Coin((x, y), coins))
+
 
 def game_over(is_game):
     custom_cursor = pygame.image.load("images/cursor.png").convert_alpha()
@@ -111,26 +117,25 @@ def game_over(is_game):
 
 
 def menu():
-    # custom_cursor = pygame.image.load("images/cursor.png").convert_alpha()
-    # pygame.mouse.set_visible(False)
-    # cursor_img_rect = custom_cursor.get_rect()
-    # custom_cursor.set_colorkey((104, 75, 45))
     revo = assets["Revo"].copy()
+    rand_angle = random.randint(0, 360)
+    cords = [(random.randint(-300, 300),random.randint(-300, 300)) for _ in range(50)]
     while True:
-
+        
         revo.update()
-        # image = revo.img()
-
         screen.blit(pygame.image.load("images/menu.png"), (0, 0))
-        screen.blit(revo.img(), (50, 50))
+        
+        for x, y in cords:
+            screen.blit(pygame.transform.rotate(revo.img(), x),(x,y)  )
+
         play_button_rect = pygame.Rect(
             250, 300, 100, 50
-        )  # Define the "Play" button rect
+        )  
         pygame.draw.rect(
             screen, (255, 255, 255), play_button_rect, 2
-        )  # Draw button outline
+        )  
 
-        # Display text on the button
+        
         font = pygame.font.SysFont(None, 30)
         text = font.render("Play", True, (255, 255, 255))
         text_rect = text.get_rect(center=play_button_rect.center)
@@ -148,7 +153,7 @@ def menu():
                         event.pos
                     ):  # Check if mouse clicked on button
                         return  # Exit the menu function and start the game
-        # screen.blit(custom_cursor, cursor_img_rect)
+
 
 
 entities = pygame.sprite.Group()
@@ -161,52 +166,8 @@ spikes = pygame.sprite.Group()
 coins = pygame.sprite.Group()
 
 
-def spawn_coins(
-    x,
-    y,
-):
-    if random.random() < 0.5:
-        coins.add(Coin((x, y), coins))
 
 
-# def spawn_entities_threaded(is_game, player, amount_entities, phase):
-#     def spawn_entities_worker(is_game, player, amount_entities, phase):
-#         randik = random.random()
-#         probability = 0
-#         if phase == 2:
-#             probability = 0.2
-
-#         if (
-#             randik < 0.5 + probability and is_game and amount_entities < 70
-#         ):  # Adjust this probability to control the spawn rate
-#             random_speed = random.uniform(2, 4)
-#             randx = random.randint(-1232, 1174)
-#             randy = random.randint(-700, 656)
-#             while (
-#                 randx > player.rect.x - 300
-#                 and randx < player.rect.x + 300
-#                 or randy > player.rect.y - 300
-#                 and randy < player.rect.y + 300
-#             ):
-#                 randx = random.randint(-1232, 1174)
-#                 randy = random.randint(-700, 656)
-#             if randik < 0.01:
-#                 shooters.add(
-#                     Shooter(randx, randy, random_speed, shooters)
-#                 )
-#                 amount_entities += 1
-#             elif randik < 0.05:
-#                 pass
-#                 entities.add(
-#                     Entity(randx, randy, random_speed)
-#                 )
-#                 amount_entities += 1
-
-
-
-#     # Create a thread to run the spawning worker function
-#     spawn_thread = threading.Thread(target=spawn_entities_worker, args=(is_game, player, amount_entities, phase))
-#     spawn_thread.start()
 
 def spawn_entities(is_game, player, amount_entities, phase):
     randik = random.random()
@@ -246,7 +207,7 @@ def spawn_entities(is_game, player, amount_entities, phase):
 
 
 def game():
-    pygame.display.set_caption("Не для клаустрофобів")
+    pygame.display.set_caption("Йоу я це зделаль")
     custom_cursor = pygame.image.load("images/cursor.png").convert_alpha()
     pygame.mouse.set_visible(False)
     cursor_img_rect = custom_cursor.get_rect()
@@ -289,7 +250,8 @@ def game():
     amount_coins = 0
     last_shot_time = 0  # Time of the last shots
     kill_count = 0
-
+    
+    
     while running:
         screen.fill((0, 0, 0))
         cursor_position = pygame.mouse.get_pos()
@@ -307,8 +269,12 @@ def game():
             healt_pots.empty()
             entitybullets.empty()
             game_over(is_game)
+            player.rect.x = 0
+            player.rect.y = 0
             gun = Pistol((player.col.x, player.col.y))
             player.health = player.max_health
+            
+
 
         current_time = pygame.time.get_ticks()
 
@@ -348,12 +314,8 @@ def game():
             amount_entities += 30
             amount_coins = 0
 
-        # spawn_entities(is_game, player, amount_entities, phase)
+        
         spawn_entities_threaded(is_game, player, amount_entities, phase, shooters, entities)
-        # spawn_single(player)
-        # shooters.add(
-        #     Shooter(-1200, -700, 0, shooters)
-        # )
         
         current_time = time.time()
         if is_shooting and current_time - last_shot_time > gun.reload:
@@ -406,8 +368,9 @@ def game():
 
         for entity in entities:
             entity.update(player)
-            # pygame.draw.rect(screen, (255, 0, 0), ((entity.rect.topleft), entity.rect.size))
             for bullet in bullets:
+                # bullet.check_enemy_collision(bullets, entities, entity, spawn_coins, healt_pots, amount_entities,WIDTH, HEIGHT)
+                
                 if entity.col.colliderect(bullet.rect):
                     amount_entities -= 1
                     spawn_coins(entity.col.x, entity.col.y)

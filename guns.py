@@ -6,6 +6,7 @@ from all_images import assets
 import random
 
 
+
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, start_pos, end_pos):
         super().__init__()
@@ -15,7 +16,40 @@ class Bullet(pygame.sprite.Sprite):
         self.image.set_colorkey((78, 255, 186))
         self.rect = self.image.get_rect(center=start_pos)
         self.vector = (end_pos[0] - start_pos[0], end_pos[1] - start_pos[1])
-        self.speed = 7
+        self.speed = 10
+        self.durability = 10
+
+    # def check_enemy_collision(self, bullets, entities, entity, spawn_coins, healt_pots, amount_entities,WIDTH, HEIGHT):
+    #     global kill_count
+
+    #     if entity.col.colliderect(self.rect):
+    #         amount_entities -= 1
+    #         spawn_coins(entity.col.x, entity.col.y)
+    #         bullets.remove(self)
+    #         kill_count += 1
+    #         if (kill_count % 30) == 0:
+
+    #             # healt_pots.add(
+    #             #     HealthPotion(
+    #             #         (entity.col.x, entity.col.y),
+    #             #         (50, 50),
+    #             #     )
+    #             # )
+    #             spawn_health_pot(healt_pots,entity.col.x, entity.col.y)
+    #         entities.remove(entity)
+    #     if not self.rect.colliderect(pygame.Rect(0, 0, WIDTH, HEIGHT)):
+    #         bullets.remove(self)
+
+
+        
+    # def spawn_health_pot(healt_pots, x, y):
+    #     healt_pots.add(
+    #         HealthPotion(
+    #             (x, y),#(entity.col.x, entity.col.y)
+    #             (50, 50),
+    #         )
+    #     )
+
 
     def update(self, center):
         distance = math.sqrt(self.vector[0] ** 2 + self.vector[1] ** 2)
@@ -26,6 +60,7 @@ class Bullet(pygame.sprite.Sprite):
             self.rect.y += (self.speed * self.vector[1] / distance) - (
                 center.direction.y * center.speed * 2
             )
+        
 
     def render(self, display):
         display.blit(self.image, self.rect.topleft)
@@ -174,26 +209,6 @@ class ShotgunEnemy(pygame.sprite.Sprite):
         # Update the rect with the new image position
         self.rect = self.image.get_rect(center=player_pos)
 
-    # def update(self, target_pos, player_pos):
-
-    #     dx = target_pos[0] - self.rect.centerx
-    #     dy = target_pos[1] - self.rect.centery
-    #     angle = math.degrees(
-    #         math.atan2(-dy, dx) - 89.5
-    #     )  # Adjusting angle due to image correction
-    #     if player_pos[0] > target_pos[0]:
-    #         angle = -angle + 5
-
-    #     # Check if the rotated image for the current angle already exists in the cache
-    #     if angle not in self.images:
-    #         # If not, rotate the original image and store it in the cache
-    #         self.images[angle] = pygame.transform.rotate(self.image, angle)
-    #     self.image = self.images[angle]
-
-    #     # Update the rect with the new image position
-    #     self.rect = self.image.get_rect(topleft=(player_pos[0], player_pos[1] + 20))
-
-
 class Shotgun(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
@@ -205,7 +220,7 @@ class Shotgun(pygame.sprite.Sprite):
         self.pos = pos
         self.rect = self.original_image.get_rect(topleft=pos)
         self.angle = 0
-        self.reload = 0.5
+        self.reload = 0.7
 
     def shoot(self, cursor_pos, bullets):
         bullets.add(
@@ -215,7 +230,7 @@ class Shotgun(pygame.sprite.Sprite):
                     self.rect.y + 18,
                 ),
                 (
-                    cursor_pos[0] + 30,
+                    cursor_pos[0],
                     cursor_pos[1],
                 ),
             ),
@@ -225,8 +240,8 @@ class Shotgun(pygame.sprite.Sprite):
                     self.rect.y + 18,
                 ),
                 (
-                    cursor_pos[0] + random.randint(-30, 30),
-                    cursor_pos[1] + random.randint(-40, 40),
+                    cursor_pos[0] + random.randint(10, 50),
+                    cursor_pos[1] + random.randint(0, 50),
                 ),
             ),
             Bullet(
@@ -235,8 +250,8 @@ class Shotgun(pygame.sprite.Sprite):
                     self.rect.y + 18,
                 ),
                 (
-                    cursor_pos[0] + random.randint(-30, 30),
-                    cursor_pos[1] + random.randint(-40, 40),
+                    cursor_pos[0] + random.randint(-50, -10),
+                    cursor_pos[1] + random.randint(0, 50),
                 ),
             ),
         )
@@ -335,8 +350,8 @@ class Pistol(pygame.sprite.Sprite):
                     self.rect.y + 10,
                 ),
                 (
-                    cursor_pos[0] + 30,
-                    cursor_pos[1],
+                    cursor_pos[0] + random.randint(-50,50),
+                    cursor_pos[1] + random.randint(-50,50),
                 ),
             ),
         )

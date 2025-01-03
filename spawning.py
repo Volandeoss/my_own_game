@@ -16,7 +16,7 @@ def spawn_entities_threaded(is_game, player, amount_entities, phase, shooters, e
             randik < 0.5 + probability and is_game and amount_entities < 70
         ):  # Adjust this probability to control the spawn rate
             random_speed = random.uniform(2, 4)
-            randx = random.randint(-1200, 1100)
+            randx = random.randint(-1230, 1173)
             randy = random.randint(-700, 650)
             while (
                 randx > player.rect.x - 300
@@ -24,7 +24,7 @@ def spawn_entities_threaded(is_game, player, amount_entities, phase, shooters, e
                 or randy > player.rect.y - 300
                 and randy < player.rect.y + 300
             ):
-                randx = random.randint(-1200, 1100)
+                randx = random.randint(-1230, 1173)
                 randy = random.randint(-700, 650)
             if randik < 0.01:
                 shooters.add(
@@ -42,3 +42,5 @@ def spawn_entities_threaded(is_game, player, amount_entities, phase, shooters, e
     # Create a thread to run the spawning worker function
     spawn_thread = threading.Thread(target=spawn_entities_worker, args=(is_game, player, amount_entities, phase))
     spawn_thread.start()
+
+

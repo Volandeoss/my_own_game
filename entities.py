@@ -33,20 +33,20 @@ class Entity(pygame.sprite.Sprite):
         self.dx = 0  # -= player.direction.x * player.speed * 2
         self.dy = 0  # -= player.direction.y * player.speed * 2
 
-    def move_towards_center(self, center):
+    def move_towards_center(self, player):
         angle = math.atan2(
-            center.rect.y - self.rect.centery, center.rect.x - self.rect.centerx
+            player.rect.y - self.rect.centery, player.rect.x - self.rect.centerx
         )
         self.dx = self.speed * math.cos(angle)
         self.dy = self.speed * math.sin(angle)
 
-        if self.is_colliding_player(center):
+        if self.is_colliding_player(player):
             self.set_action("attack")
             self.dx = 0
             self.dy = 0
 
-            if self.animation.frame == 4:
-                center.health -= 1
+            if self.animation.frame == 1:
+                player.health -= 1
         else:
             self.set_action("walk")
 
@@ -100,21 +100,20 @@ class Shooter(pygame.sprite.Sprite):
         angle = math.atan2(
             player.rect.y - self.rect.centery, player.rect.x - self.rect.centerx
         )
-        if hasattr(self, 'speed') and self.speed is not None:
-            self.dx = self.speed * math.cos(angle)
-            self.dy = self.speed * math.sin(angle)
+        self.dx = self.speed * math.cos(angle)
+        self.dy = self.speed * math.sin(angle)
 
-            if self.get_dist(player) < 200:
-                self.set_action("idle")
-                current_time = time.time()
-                if current_time - self.last_shot_time > self.gun.reload:
-                    self.gun.shoot(self.col, player, bullets)
-                    self.last_shot_time = current_time
-                self.dx = 0
-                self.dy = 0
+        if self.get_dist(player) < 200:
+            self.set_action("idle")
+            current_time = time.time()
+            if current_time - self.last_shot_time > self.gun.reload:
+                self.gun.shoot(self.col, player, bullets)
+                self.last_shot_time = current_time
+            self.dx = 0
+            self.dy = 0
 
-            else:
-                self.set_action("walk")
+        else:
+            self.set_action("walk")
 
     def die(self, kill_count, health_pots):
         self.gun.kill()
@@ -152,15 +151,14 @@ class PhysicsEntity(pygame.sprite.Sprite):
         self.game = game
         self.pos = list(pos)
         self.size = size
-        self.health = 1000
-        self.max_health = 1000
+        self.health = 10
+        self.max_health = 10
         self.old_x = 0
         self.old_y = 0
         self.action = ""
         self.set_action("idle")
         self.image = self.animation.img()
         self.rect = self.image.get_rect(center=pos)
-        # self.col = self.image.get_rect(topleft=(pos[0] - 20, pos[1] - 22))
         self.col = pygame.Rect(pos[0] - 15, pos[1] - 22, size[0] - 10, size[1])
         self.direction = pygame.math.Vector2()
         self.speed = 3
@@ -251,16 +249,14 @@ class HealthPotion(pygame.sprite.Sprite):
         self.size = size
         self.rect = pygame.Rect(self.pos, self.size)
         self.image_index = 0  # Index of the current image in the animation
-        self.animation_delay = 5  # Delay between animation frames
+        self.animation_delay = 2  # Delay between animation frames
         self.animation_timer = 0  # Timer for animation
 
     def update(self, player):
         if self.rect.colliderect(player.col) and player.health < player.max_health:
             player.health += 1
-            # print("HELL YEAH!")
             self.kill()
         elif self.rect.colliderect(player.col):
-            # print("I'm full, I don't need this")
             self.kill()
 
     def move_towards_player(self, center):
